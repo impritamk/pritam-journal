@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Loader2, Music, SkipBack, SkipForward, ListMusic, Trash2, Play, Pause } from 'lucide-react'
 import ReactPlayer from 'react-player'
 import { getAudioItems, addAudioItem, deleteAudioItem, type AudioItem } from '@/app/actions'
-
+const Player = ReactPlayer as any;
 export default function MoodStation() {
   const [items, setItems] = useState<AudioItem[]>([])
   
@@ -193,13 +193,12 @@ export default function MoodStation() {
           >
             {/* The Invisible YouTube Player */}
             <div className="hidden absolute opacity-0 pointer-events-none">
-              <ReactPlayer 
+              <Player 
                 url={getPlayableUrl(activeItem.embed_url)} 
                 playing={isPlaying} 
                 onEnded={handleNext} 
                 width="0" 
                 height="0"
-                config={{ youtube: { playerVars: { origin: typeof window !== 'undefined' ? window.location.origin : '' } } }}
               />
             </div>
             
