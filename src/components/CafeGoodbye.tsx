@@ -56,13 +56,13 @@ export default function CafeGoodbye() {
 
           {/* Minimalist Socials */}
           <div className="flex items-center space-x-6">
-            <a href="mailto:your-email@example.com" className="text-white/50 hover:text-white transition-colors" title="Email">
+            <a href="mailto:your-im.pritamk@gmail.com" className="text-white/50 hover:text-white transition-colors" title="Email">
               <Mail size={18} />
             </a>
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="text-white/50 hover:text-white transition-colors" title="Photos">
+            <a href="https://instagram.com/pritamk_" target="_blank" rel="noreferrer" className="text-white/50 hover:text-white transition-colors" title="Photos">
               <Camera size={18} />
             </a>
-            <a href="https://twitter.com" target="_blank" rel="noreferrer" className="text-white/50 hover:text-white transition-colors" title="Thoughts">
+            <a href="https://twitter.com/pritamk_" target="_blank" rel="noreferrer" className="text-white/50 hover:text-white transition-colors" title="Thoughts">
               <AtSign size={18} />
             </a>
             <a href="https://spotify.com" target="_blank" rel="noreferrer" className="text-white/50 hover:text-white transition-colors" title="Playlists">

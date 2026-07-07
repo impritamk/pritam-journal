@@ -65,16 +65,16 @@ export default function DigitalMe() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="flex justify-center flex-wrap gap-4"
         >
-          <a href="mailto:your-email@example.com" className="flex items-center space-x-2 px-6 py-3 bg-[var(--color-ink)] text-white rounded-full hover:opacity-90 transition-all text-sm font-sans group">
+          <a href="mailto:your-im.pritamk@gmail.com" className="flex items-center space-x-2 px-6 py-3 bg-[var(--color-ink)] text-white rounded-full hover:opacity-90 transition-all text-sm font-sans group">
             <Mail size={16} />
             <span>Say Hello</span>
             <ArrowUpRight size={14} className="transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
           </a>
-          <a href="https://instagram.com" target="_blank" rel="noreferrer" className="flex items-center space-x-2 px-6 py-3 rounded-full bg-white border border-[var(--color-pencil)]/20 hover:border-[var(--color-ink)] hover:text-[var(--color-ink)] text-[var(--color-pencil)] transition-all text-sm font-sans">
+          <a href="https://instagram.com/pritamk_" target="_blank" rel="noreferrer" className="flex items-center space-x-2 px-6 py-3 rounded-full bg-white border border-[var(--color-pencil)]/20 hover:border-[var(--color-ink)] hover:text-[var(--color-ink)] text-[var(--color-pencil)] transition-all text-sm font-sans">
             <Camera size={16} />
             <span>Photos</span>
           </a>
-          <a href="https://twitter.com" target="_blank" rel="noreferrer" className="flex items-center space-x-2 px-6 py-3 rounded-full bg-white border border-[var(--color-pencil)]/20 hover:border-[var(--color-ink)] hover:text-[var(--color-ink)] text-[var(--color-pencil)] transition-all text-sm font-sans">
+          <a href="https://twitter.com/pritamk_" target="_blank" rel="noreferrer" className="flex items-center space-x-2 px-6 py-3 rounded-full bg-white border border-[var(--color-pencil)]/20 hover:border-[var(--color-ink)] hover:text-[var(--color-ink)] text-[var(--color-pencil)] transition-all text-sm font-sans">
             <AtSign size={16} />
             <span>Thoughts</span>
           </a>
