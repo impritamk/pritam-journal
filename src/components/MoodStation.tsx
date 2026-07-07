@@ -192,15 +192,17 @@ export default function MoodStation() {
             className="w-full bg-white rounded-[2rem] shadow-xl border border-[var(--color-pencil)]/15 overflow-hidden relative z-10 p-8"
           >
             {/* The Invisible YouTube Player */}
-            <div className="hidden absolute opacity-0 pointer-events-none">
-              <Player 
-                url={getPlayableUrl(activeItem.embed_url)} 
-                playing={isPlaying} 
-                onEnded={handleNext} 
-                width="0" 
-                height="0"
-              />
-            </div>
+            <div className="absolute top-0 left-0 w-[100px] h-[100px] opacity-0 pointer-events-none overflow-hidden -z-10">
+                <Player 
+                  url={getPlayableUrl(activeItem.embed_url)} 
+                  playing={isPlaying} 
+                  onEnded={handleNext} 
+                  width="100px" 
+                  height="100px"
+                  volume={1}
+                  playsinline={true}
+                />
+              </div>
             
             {/* Top Badge & Count */}
             <div className="flex justify-between items-start mb-8">
