@@ -1,26 +1,42 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* The Café Palette */
+  --color-paper: #F9F8F6;       /* Warm, creamy off-white */
+  --color-ink: #1C1B1A;         /* Deep, soft charcoal (not harsh black) */
+  --color-pencil: #8A857D;      /* Muted gray-brown for secondary text/borders */
+  --color-highlighter: #FFD966; /* A warm, sunny yellow for selections/accents */
+  
+  /* The Three Voices */
+  --font-sans: var(--font-inter), sans-serif;
+  --font-serif: var(--font-newsreader), serif;
+  --font-handwriting: var(--font-caveat), cursive;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  
+  /* Remove the rigid digital scrollbar for a seamless editorial feel */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  /* When someone highlights text, it should look like a warm marker, not a computer error */
+  ::selection {
+    background-color: var(--color-highlighter);
+    color: var(--color-ink);
+  }
+  ::-moz-selection {
+    background-color: var(--color-highlighter);
+    color: var(--color-ink);
+  }
 }
