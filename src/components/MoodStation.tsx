@@ -2,17 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Loader2, Music, SkipBack, SkipForward, ListMusic, Trash2, Play, Pause } from 'lucide-react'
-import ReactPlayer from 'react-player'
+import { Disc3, Plus, Loader2, Music, SkipBack, SkipForward, ListMusic, Trash2 } from 'lucide-react'
 import { getAudioItems, addAudioItem, deleteAudioItem, type AudioItem } from '@/app/actions'
-const Player = ReactPlayer as any;
+
 export default function MoodStation() {
   const [items, setItems] = useState<AudioItem[]>([])
   
   // Player State
   const [currentIndex, setCurrentIndex] = useState(0)
   const [activeItem, setActiveItem] = useState<AudioItem | null>(null)
-  const [isPlaying, setIsPlaying] = useState(false)
   const [isPlaylistOpen, setIsPlaylistOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   
@@ -28,6 +26,7 @@ export default function MoodStation() {
   const [newNote, setNewNote] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // Fetch data
   useEffect(() => {
     const fetchAudio = async () => {
       try {
@@ -52,7 +51,6 @@ export default function MoodStation() {
     const nextIndex = (currentIndex + 1) % items.length
     setCurrentIndex(nextIndex)
     setActiveItem(items[nextIndex])
-    setIsPlaying(true)
   }
 
   const handlePrev = () => {
@@ -60,38 +58,13 @@ export default function MoodStation() {
     const prevIndex = currentIndex === 0 ? items.length - 1 : currentIndex - 1
     setCurrentIndex(prevIndex)
     setActiveItem(items[prevIndex])
-    setIsPlaying(true)
   }
 
   const selectTrack = (index: number) => {
     setCurrentIndex(index)
     setActiveItem(items[index])
-    setIsPlaying(true)
+    // Optional: Close playlist on mobile when track is selected
     if (window.innerWidth < 768) setIsPlaylistOpen(false)
-  }
-
-  // --- MAGIC FORMATTING FUNCTIONS ---
-  
-  // Converts your database embed URLs into clean YouTube watch URLs for the player
-  const getPlayableUrl = (url: string) => {
-    if (url.includes('youtube.com/embed/')) {
-      const videoId = url.split('embed/')[1].split('?')[0]
-      return `https://www.youtube.com/watch?v=${videoId}`
-    }
-    return url
-  }
-
-  // Extracts the thumbnail from the YouTube link
-  const getThumbnail = (url: string) => {
-    try {
-      if (url.includes('youtube.com/embed/')) {
-        const videoId = url.split('embed/')[1].split('?')[0]
-        return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
-      }
-      return 'https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?q=80&w=800&auto=format&fit=crop'
-    } catch {
-      return 'https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?q=80&w=800&auto=format&fit=crop'
-    }
   }
 
   const handleAddSubmit = async (e: React.FormEvent) => {
@@ -101,8 +74,13 @@ export default function MoodStation() {
 
     try {
       const insertedItem = await addAudioItem({
-        title: newTitle, artist: newArtist, embed_url: newEmbedUrl, category: newCategory, note: newNote
+        title: newTitle,
+        artist: newArtist,
+        embed_url: newEmbedUrl,
+        category: newCategory,
+        note: newNote
       })
+
       setItems(prev => [insertedItem, ...prev])
       setIsFormOpen(false)
       setNewTitle(''); setNewArtist(''); setNewEmbedUrl(''); setNewNote('')
@@ -116,7 +94,9 @@ export default function MoodStation() {
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation()
     setItems(prev => prev.filter(item => item.id !== id))
-    if (activeItem?.id === id) handleNext()
+    if (activeItem?.id === id) {
+      handleNext()
+    }
     try {
       await deleteAudioItem(id)
     } catch (error) {
@@ -143,6 +123,7 @@ export default function MoodStation() {
           <span 
             onDoubleClick={() => setIsAdmin(!isAdmin)}
             className={`font-sans text-xs tracking-[0.2em] uppercase select-none cursor-pointer transition-colors ${isAdmin ? 'text-red-500 font-bold' : 'text-[var(--color-pencil)]'}`}
+            title="Double click for Ghost Mode"
           >
             {isAdmin ? '👻 Audio Admin Active' : 'Sonic Archives'}
           </span>
@@ -151,7 +132,7 @@ export default function MoodStation() {
           </h2>
         </div>
 
-        {/* 👻 GHOST ADMIN FORM */}
+        {/* 👻 GHOST ADMIN FORM (Hidden until Admin Mode + Click) */}
         <AnimatePresence>
           {isAdmin && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="w-full overflow-hidden mb-8">
@@ -161,7 +142,6 @@ export default function MoodStation() {
                 </button>
               ) : (
                 <form onSubmit={handleAddSubmit} className="bg-red-50/50 p-6 rounded-2xl border border-red-200 shadow-sm">
-                  {/* Form fields identical to previous version... */}
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="font-serif text-xl text-[var(--color-ink)]">Add to Rotation</h3>
                     <button type="button" onClick={() => setIsFormOpen(false)} className="text-[var(--color-pencil)] text-sm">Cancel</button>
@@ -184,98 +164,77 @@ export default function MoodStation() {
           )}
         </AnimatePresence>
 
-        {/* THE FOCUSED CUSTOM MUSIC PLAYER */}
+        {/* THE FOCUSED MUSIC PLAYER */}
         {activeItem && (
           <motion.div 
             layout
             key="player-card"
-            className="w-full bg-white rounded-[2rem] shadow-xl border border-[var(--color-pencil)]/15 overflow-hidden relative z-10 p-8"
+            className="w-full bg-white rounded-[2rem] shadow-xl border border-[var(--color-pencil)]/15 overflow-hidden relative z-10"
           >
-            {/* The Invisible YouTube Player */}
-            <div className="absolute top-0 left-0 w-[100px] h-[100px] opacity-0 pointer-events-none overflow-hidden -z-10">
-                <Player 
-                  url={getPlayableUrl(activeItem.embed_url)} 
-                  playing={isPlaying} 
-                  onEnded={handleNext} 
-                  width="100px" 
-                  height="100px"
-                  volume={1}
-                  playsinline={true}
-                />
-              </div>
-            
-            {/* Top Badge & Count */}
-            <div className="flex justify-between items-start mb-8">
-              <span className="font-sans text-[10px] tracking-widest uppercase px-3 py-1 bg-[var(--color-ink)] text-white rounded-full shadow-sm">
-                {activeItem.category}
-              </span>
-              <span className="font-sans text-xs text-[var(--color-pencil)] font-medium">
-                {currentIndex + 1} / {items.length}
-              </span>
+            {/* Spinning Vinyl Background Hint */}
+            <div className="absolute -top-24 -right-24 opacity-[0.03] pointer-events-none">
+              <motion.div animate={{ rotate: 360 }} transition={{ duration: 12, repeat: Infinity, ease: "linear" }}>
+                <Disc3 size={350} strokeWidth={0.5} />
+              </motion.div>
             </div>
 
-            {/* Spinning Vinyl Record Thumbnail */}
-            <div className="flex justify-center mb-8 relative">
-              <div 
-                className="w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-8 border-gray-100 shadow-lg relative bg-black flex items-center justify-center animate-spin"
-                style={{ 
-                  animationDuration: '10s', 
-                  animationPlayState: isPlaying ? 'running' : 'paused' 
-                }}
-              >
-                {/* The album art */}
-                <img 
-                  src={getThumbnail(activeItem.embed_url)} 
-                  alt="Cover" 
-                  className="absolute inset-0 w-full h-full object-cover opacity-80"
-                />
-                {/* Vinyl Record Center Hole Details */}
-                <div className="w-12 h-12 rounded-full border-4 border-[#222] bg-white relative z-10 flex items-center justify-center">
-                  <div className="w-3 h-3 rounded-full bg-black"></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Track Info */}
-            <div className="text-center mb-8">
-              <h3 className="font-serif text-3xl text-[var(--color-ink)] leading-tight mb-2 truncate px-4">{activeItem.title}</h3>
-              <p className="font-sans text-[var(--color-pencil)] text-base truncate px-4">{activeItem.artist}</p>
-              {activeItem.note && (
-                <p className="font-handwriting text-lg text-[var(--color-ink)]/70 mt-4 inline-block -rotate-1">
-                  "{activeItem.note}"
-                </p>
-              )}
-            </div>
-
-            {/* Player Controls (Play, Pause, Skip) */}
-            <div className="flex items-center justify-center space-x-6 border-t border-[var(--color-pencil)]/10 pt-8 pb-4">
-              <button onClick={handlePrev} className="p-3 text-[var(--color-pencil)] hover:text-[var(--color-ink)] transition-colors rounded-full hover:bg-[var(--color-paper)]">
-                <SkipBack size={24} fill="currentColor" />
-              </button>
+            <div className="p-6 md:p-8 relative z-10">
               
-              <button 
-                onClick={() => setIsPlaying(!isPlaying)}
-                className="w-16 h-16 flex items-center justify-center bg-[var(--color-ink)] text-white rounded-full shadow-md hover:scale-105 transition-transform"
-              >
-                {isPlaying ? <Pause size={28} fill="currentColor" /> : <Play size={28} fill="currentColor" className="ml-1" />}
-              </button>
+              {/* Top Badge & Note */}
+              <div className="flex justify-between items-start mb-6">
+                <span className="font-sans text-[10px] tracking-widest uppercase px-3 py-1 bg-[var(--color-ink)] text-white rounded-full shadow-sm">
+                  {activeItem.category}
+                </span>
+                <span className="font-sans text-xs text-[var(--color-pencil)] font-medium">
+                  {currentIndex + 1} / {items.length}
+                </span>
+              </div>
 
-              <button onClick={handleNext} className="p-3 text-[var(--color-pencil)] hover:text-[var(--color-ink)] transition-colors rounded-full hover:bg-[var(--color-paper)]">
-                <SkipForward size={24} fill="currentColor" />
-              </button>
+              {/* The Iframe Player */}
+              <div className="w-full aspect-video md:h-[200px] rounded-2xl overflow-hidden bg-[var(--color-paper)] shadow-inner border border-[var(--color-pencil)]/10 mb-6">
+                <iframe 
+                  src={activeItem.embed_url} 
+                  width="100%" 
+                  height="100%" 
+                  frameBorder="0" 
+                  allowFullScreen 
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                  loading="lazy"
+                  className="w-full h-full"
+                />
+              </div>
+
+              {/* Track Info */}
+              <div className="text-center mb-8">
+                <h3 className="font-serif text-2xl text-[var(--color-ink)] leading-tight mb-1 truncate px-4">{activeItem.title}</h3>
+                <p className="font-sans text-[var(--color-pencil)] text-sm truncate px-4">{activeItem.artist}</p>
+                {activeItem.note && (
+                  <p className="font-handwriting text-lg text-[var(--color-ink)]/70 mt-4 inline-block -rotate-1">
+                    "{activeItem.note}"
+                  </p>
+                )}
+              </div>
+
+              {/* Player Controls */}
+              <div className="flex items-center justify-between border-t border-[var(--color-pencil)]/10 pt-6">
+                <button onClick={handlePrev} className="p-3 text-[var(--color-pencil)] hover:text-[var(--color-ink)] transition-colors rounded-full hover:bg-[var(--color-paper)]">
+                  <SkipBack size={24} fill="currentColor" />
+                </button>
+                
+                <button 
+                  onClick={() => setIsPlaylistOpen(!isPlaylistOpen)}
+                  className={`flex items-center space-x-2 px-5 py-2.5 rounded-full font-sans text-sm transition-all ${isPlaylistOpen ? 'bg-[var(--color-ink)] text-white shadow-md' : 'bg-[var(--color-paper)] text-[var(--color-ink)] hover:bg-[var(--color-pencil)]/10'}`}
+                >
+                  <ListMusic size={16} />
+                  <span>{isPlaylistOpen ? 'Hide Tracks' : 'Tracks'}</span>
+                </button>
+
+                <button onClick={handleNext} className="p-3 text-[var(--color-pencil)] hover:text-[var(--color-ink)] transition-colors rounded-full hover:bg-[var(--color-paper)]">
+                  <SkipForward size={24} fill="currentColor" />
+                </button>
+              </div>
+
             </div>
-
-            {/* Playlist Toggle */}
-            <div className="flex justify-center mt-2">
-              <button 
-                onClick={() => setIsPlaylistOpen(!isPlaylistOpen)}
-                className="flex items-center space-x-2 font-sans text-xs tracking-widest uppercase text-[var(--color-pencil)] hover:text-[var(--color-ink)] transition-colors"
-              >
-                <ListMusic size={14} />
-                <span>{isPlaylistOpen ? 'Hide Playlist' : 'Show Playlist'}</span>
-              </button>
-            </div>
-
           </motion.div>
         )}
 
@@ -286,9 +245,9 @@ export default function MoodStation() {
               initial={{ opacity: 0, y: -20, height: 0 }}
               animate={{ opacity: 1, y: 0, height: 'auto' }}
               exit={{ opacity: 0, y: -20, height: 0 }}
-              className="w-full max-w-[95%] bg-white border border-[var(--color-pencil)]/15 rounded-b-3xl shadow-lg overflow-hidden -mt-8 pt-12 z-0"
+              className="w-full max-w-[95%] bg-white border border-[var(--color-pencil)]/15 rounded-b-3xl shadow-lg overflow-hidden -mt-8 pt-10 z-0"
             >
-              <div className="max-h-[350px] overflow-y-auto custom-scrollbar p-4 flex flex-col space-y-1">
+              <div className="max-h-[400px] overflow-y-auto custom-scrollbar p-4 flex flex-col space-y-1">
                 {items.map((item, index) => {
                   const isActive = currentIndex === index
                   return (
@@ -297,17 +256,13 @@ export default function MoodStation() {
                       onClick={() => selectTrack(index)}
                       className={`group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors ${isActive ? 'bg-[var(--color-paper)]' : 'hover:bg-gray-50'}`}
                     >
-                      <div className="flex items-center space-x-4 overflow-hidden w-full">
-                        {isActive && isPlaying ? (
-                          <Music size={14} className="text-[var(--color-highlighter)] shrink-0 animate-bounce" />
+                      <div className="flex items-center space-x-3 overflow-hidden">
+                        {isActive ? (
+                          <Music size={14} className="text-[var(--color-highlighter)] shrink-0" />
                         ) : (
-                          <span className="text-[10px] text-[var(--color-pencil)]/50 w-4 font-mono shrink-0 text-center">{index + 1}</span>
+                          <span className="text-[10px] text-[var(--color-pencil)]/50 w-4 font-mono">{index + 1}</span>
                         )}
-                        
-                        {/* Tiny thumbnail for playlist */}
-                        <img src={getThumbnail(item.embed_url)} className="w-10 h-10 rounded-md object-cover opacity-80" alt="" />
-                        
-                        <div className="flex flex-col truncate w-full pr-2">
+                        <div className="flex flex-col truncate">
                           <span className={`font-serif text-sm truncate ${isActive ? 'text-[var(--color-ink)]' : 'text-[var(--color-ink)]/70 group-hover:text-[var(--color-ink)]'}`}>
                             {item.title}
                           </span>
@@ -317,8 +272,12 @@ export default function MoodStation() {
                         </div>
                       </div>
 
+                      {/* Ghost Admin Delete Button */}
                       {isAdmin && (
-                        <button onClick={(e) => handleDelete(e, item.id)} className="text-red-400 hover:text-red-600 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button 
+                          onClick={(e) => handleDelete(e, item.id)}
+                          className="text-red-400 hover:text-red-600 p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
                           <Trash2 size={14} />
                         </button>
                       )}
